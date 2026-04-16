@@ -19,17 +19,23 @@ pca = PCA(n_components =3)
 X_pca_3d = pca.fit_transform(X_scaled)
 
 loadings = pd.DataFrame(pca.components_.T, columns=['PC1', 'PC2', 'PC3'], index=features)
-loadings['influence'] = np.sqrt(loadings['PC1']**2 + loadings['PC2']**2 + loadings['PC3']**2)
-top_3_features = loadings['influence'].sort_values(ascending=False).head(3)
+#loadings['influence'] = np.sqrt(loadings['PC1']**2 + loadings['PC2']**2 + loadings['PC3']**2)
+#top_3_features = loadings['influence'].sort_values(ascending=False).head(3)
 
-print("Top 3 Features Identified by PCA:")
-print(top_3_features)
+print(loadings.sort_values(by='PC1', key=abs, ascending=False).head(10))
 
 kmeans= KMeans(n_clusters=3, random_state=42, n_init=10)
 df_clean['Cluster'] = kmeans.fit_predict(X_pca_3d)
 
-cluster_map = { 0: "Away Team Dominance", 1:"Competitve", 2: "Home Team Dominance"}
+cluster_map = { 0: "Away Team Dominance", 1:"Home Team Dominance", 2: "Competitive"}
 df_clean['ClusterLabel'] = df_clean['Cluster'].map(cluster_map)
+
+summary_table = df_clean.groupby('ClusterLabel')[features].mean()
+summary_table_transposed = summary_table.T
+
+print("\n ---Cluster Summary Table (Feature Average) ---")
+print(summary_table_transposed)
+
 
 #Visualization
 fig = plt.figure(figsize=(12,9))
@@ -41,10 +47,10 @@ for i, label in cluster_map.items():
 	idx=df_clean['Cluster'] ==i
 	ax.scatter(X_pca_3d[idx,0], X_pca_3d[idx,1], X_pca_3d[idx,2], c=colors[i], label=label, alpha=0.6, s=30)
 
-
-ax.set_xlabel('PC1: Shot Volume')
-ax.set_ylabel('PC2: Goal Scoring')
-ax.set_zlabel('PC3: Discipline & Away Pressure')
+explained = pca.explained_variance_ratio_
+ax.set_xlabel(f'PC1: ({explained[0]*100:.1f}%)')
+ax.set_ylabel(f'PC2: ({explained[1]*100:.1f}%)')
+ax.set_zlabel(f'PC3: ({explained[2]*100:.1f}%)')
 ax.set_title('Cluster Analysis of Football Matches')
 ax.legend()
 
