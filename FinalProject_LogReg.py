@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_score, confusion_matrix
+pd.set_option('future.no_silent_downcasting', True)
 
 #load data
 df = pd.read_csv("results.csv", encoding="latin1")
@@ -67,6 +68,21 @@ for dataframe in frames:
         print("The highest precision for half time is "+str(max_1)+" using variable "+best1_1+".")
     else:
         print("The highest precision for post-match is "+str(max_1)+" using variable "+best1_1+".")
+    X = df[[best1_1]].copy()
+    #set test data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    #scale test and training data
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    #logreg
+    model = LogisticRegression(max_iter=1000)
+    model.fit(X_train, y_train)
+    #get and compare results
+    y_pred = model.predict(X_test)
+    cm = confusion_matrix(y_test,y_pred)
+    print(cm)
+    print(" ")
 print(" ")
 
 for dataframe in frames:
@@ -99,6 +115,21 @@ for dataframe in frames:
         print("The highest precision for half time is "+str(max_2)+" using variables "+best1_2+" and "+best2_2+".")
     else:
         print("The highest precision for post-match is "+str(max_2)+" using variables "+best1_2+" and "+best2_2+".")
+    X = df[[best1_2,best2_2]].copy()
+    #set test data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    #scale test and training data
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    #logreg
+    model = LogisticRegression(max_iter=1000)
+    model.fit(X_train, y_train)
+    #get and compare results
+    y_pred = model.predict(X_test)
+    cm = confusion_matrix(y_test,y_pred)
+    print(cm)
+    print(" ")
 print(" ")
 
 for dataframe in frames:
@@ -135,6 +166,21 @@ for dataframe in frames:
         print("The highest precision for half time is "+str(max_3)+" using variables "+best1_3+", "+best2_3+", and "+best3_3+".")
     else:
         print("The highest precision for post-match is "+str(max_3)+" using variables "+best1_3+", "+best2_3+", and "+best3_3+".")
+    X = df[[best1_3,best2_3,best3_3]].copy()
+    #set test data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    #scale test and training data
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    #logreg
+    model = LogisticRegression(max_iter=1000)
+    model.fit(X_train, y_train)
+    #get and compare results
+    y_pred = model.predict(X_test)
+    cm = confusion_matrix(y_test,y_pred)
+    print(cm)
+    print(" ")
 print(" ")
 
 X = df.drop(columns="DateTime").copy()
