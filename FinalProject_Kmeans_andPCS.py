@@ -15,21 +15,23 @@ df_clean = df.dropna(subset=features).copy()
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(df_clean[features])
 
+#Perform Principal Component Analysis
 pca = PCA(n_components =3)
 X_pca_3d = pca.fit_transform(X_scaled)
 
+#Provides List of Most Important items for Each Component
 loadings = pd.DataFrame(pca.components_.T, columns=['PC1', 'PC2', 'PC3'], index=features)
-#loadings['influence'] = np.sqrt(loadings['PC1']**2 + loadings['PC2']**2 + loadings['PC3']**2)
-#top_3_features = loadings['influence'].sort_values(ascending=False).head(3)
+print(loadings.sort_values(by='PC1', key=abs, ascending=False).head(16))
 
-print(loadings.sort_values(by='PC1', key=abs, ascending=False).head(10))
-
+#Performs K-Means Clustering
 kmeans= KMeans(n_clusters=3, random_state=42, n_init=10)
 df_clean['Cluster'] = kmeans.fit_predict(X_pca_3d)
 
+#Labels each Cluster with how each type of performamce
 cluster_map = { 0: "Away Team Dominance", 1:"Home Team Dominance", 2: "Competitive"}
 df_clean['ClusterLabel'] = df_clean['Cluster'].map(cluster_map)
 
+#Provides Table of Average Perfomance for Each cluster
 summary_table = df_clean.groupby('ClusterLabel')[features].mean()
 summary_table_transposed = summary_table.T
 
@@ -37,7 +39,7 @@ print("\n ---Cluster Summary Table (Feature Average) ---")
 print(summary_table_transposed)
 
 
-#Visualization
+#Visualization of the Cluster
 fig = plt.figure(figsize=(12,9))
 ax = fig.add_subplot(111, projection='3d')
 
